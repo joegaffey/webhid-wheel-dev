@@ -1,9 +1,13 @@
-name: Deploy demo to GitHub Pages
+name: Deploy WebHID Wheel Dev Pages
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      ref:
+        description: webhid-wheel branch or tag to deploy
+        required: true
+        default: main
+        type: string
 
 permissions:
   contents: read
@@ -15,16 +19,40 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out webhid-wheel source
+        uses: actions/checkout@v4
+        with:
+          repository: joegaffey/webhid-wheel
+          ref: ${{ inputs.ref }}
+          path: src
+      - name: Read source revision
+        id: source
+        working-directory: src
+        run: echo "sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+      - uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Assemble Pages site
+        run: |
+          mkdir -p site
+          cp src/index.html site/index.html
+          cp src/script.js site/script.js
+          cp -R src/src site/src
+          touch site/.nojekyll
+          printf 'webhid-wheel %s\n' "${{ steps.source.outputs.sha }}" > site/version.txt
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
   deploy:
+    needs: build
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: .
       - id: deployment
         uses: actions/deploy-pages@v4
