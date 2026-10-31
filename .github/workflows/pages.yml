@@ -42,6 +42,8 @@ jobs:
           cp src/script.js site/script.js
           cp src/logitech-test.html site/logitech-test.html
           cp src/logitech-test.js site/logitech-test.js
+          cp src/logitech-wizard.html site/logitech-wizard.html
+          cp src/logitech-wizard.js site/logitech-wizard.js
           cp -R src/src site/src
           touch site/.nojekyll
           printf 'webhid-wheel %s\n' "${{ steps.source.outputs.sha }}" > site/version.txt
