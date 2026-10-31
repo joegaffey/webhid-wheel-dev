@@ -40,6 +40,8 @@ jobs:
           mkdir -p site
           cp src/index.html site/index.html
           cp src/script.js site/script.js
+          cp src/logitech-test.html site/logitech-test.html
+          cp src/logitech-test.js site/logitech-test.js
           cp -R src/src site/src
           touch site/.nojekyll
           printf 'webhid-wheel %s\n' "${{ steps.source.outputs.sha }}" > site/version.txt
